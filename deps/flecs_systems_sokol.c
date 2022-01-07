@@ -17575,6 +17575,14 @@ inline void sapp_run(const sapp_desc& desc) { return sapp_run(&desc); }
     #include <pthread.h>    /* only used a linker-guard, search for _sapp_linux_run() and see first comment */
 #endif
 
+// undef windef.h legacy baggage for camera variables name
+#if defined(near)
+	#undef near
+#endif
+#if defined(far)
+	#undef far
+#endif
+
 /*== MACOS DECLARATIONS ======================================================*/
 #if defined(_SAPP_MACOS)
 @interface _sapp_macos_app_delegate : NSObject<NSApplicationDelegate>
