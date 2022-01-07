@@ -9280,7 +9280,7 @@ int ecs_meta_from_desc(
 /* Symbol export utility macro's */
 #if (defined(_MSC_VER) || defined(__MINGW32__))
 #define FLECS_META_C_EXPORT __declspec(dllexport)
-#define FLECS_META_C_IMPORT __declspec(dllimport)
+#define FLECS_META_C_IMPORT //__declspec(dllimport)
 #else
 #define FLECS_META_C_EXPORT __attribute__((__visibility__("default")))
 #define FLECS_META_C_IMPORT

@@ -11,28 +11,28 @@ static const float CameraMaxSpeed = 30.0;
 static
 void CameraControllerAddPosition(ecs_iter_t *it) {
     for (int i = 0; i < it->count; i ++) {
-        ecs_set(it->world, it->entities[i], EcsPosition3, {0, -1.5});
+		ecs_set(it->world, it->entities[i], EcsPosition3, {0, -1.5, 0});
     }
 }
 
 static
 void CameraControllerAddRotation(ecs_iter_t *it) {
     for (int i = 0; i < it->count; i ++) {
-        ecs_set(it->world, it->entities[i], EcsRotation3, {0, 0});
+		ecs_set(it->world, it->entities[i], EcsRotation3, {0, 0, 0});
     }
 }
 
 static
 void CameraControllerAddVelocity(ecs_iter_t *it) {
     for (int i = 0; i < it->count; i ++) {
-        ecs_set(it->world, it->entities[i], EcsVelocity3, {0, 0});
+		ecs_set(it->world, it->entities[i], EcsVelocity3, {0, 0, 0});
     }
 }
 
 static
 void CameraControllerAddAngularVelocity(ecs_iter_t *it) {
     for (int i = 0; i < it->count; i ++) {
-        ecs_set(it->world, it->entities[i], EcsAngularVelocity, {0, 0});
+		ecs_set(it->world, it->entities[i], EcsAngularVelocity, {0, 0, 0});
     }
 }
 
