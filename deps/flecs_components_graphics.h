@@ -60,8 +60,8 @@ ECS_STRUCT(EcsCamera, {
     vec3 lookat;
     vec3 up;
     float fov;
-    float near1;
-    float far1;
+    float near;
+    float far;
     bool ortho;
 });
 

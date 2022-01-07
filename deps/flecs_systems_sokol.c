@@ -4814,9 +4814,8 @@ _SOKOL_PRIVATE void _sg_dummy_update_image(_sg_image_t* img, const sg_image_data
     _SG_XMACRO(glTexImage2D,                      void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void * pixels)) \
     _SG_XMACRO(glGenVertexArrays,                 void, (GLsizei n, GLuint * arrays)) \
     _SG_XMACRO(glFrontFace,                       void, (GLenum mode)) \
-    _SG_XMACRO(glGenerateMipmap,                  void, (GLenum target)) \
-    _SG_XMACRO(glCullFace,                        void, (GLenum mode))
-
+    _SG_XMACRO(glCullFace,                        void, (GLenum mode)) \
+    _SG_XMACRO(glGenerateMipmap,                  void, (GLenum target))
 
 // generate GL function pointer typedefs
 #define _SG_XMACRO(name, ret, args) typedef ret (GL_APIENTRY* PFN_ ## name) args;
@@ -27073,7 +27072,7 @@ SOKOL_API_IMPL sg_context_desc sapp_sgcontext(void) {
 #define SOKOL_MAX_FX_PARAMS (32)
 #define SOKOL_SHADOW_MAP_SIZE (4096)
 #define SOKOL_DEFAULT_DEPTH_NEAR (1.5)
-#define SOKOL_DEFAULT_DEPTH_FAR (1000.0)
+#define SOKOL_DEFAULT_DEPTH_FAR (1500.0)
 
 #ifndef __EMSCRIPTEN__
 #define SOKOL_HIGH_DPI true
@@ -27116,8 +27115,8 @@ typedef struct sokol_global_uniforms_t {
     float t;
     float dt;
     float aspect;
-    float near1;
-    float far1;
+    float near;
+    float far;
     float fov;
     bool ortho;
 
@@ -28288,10 +28287,10 @@ const char *shd_blend_mult =
 SokolFx sokol_init_ssao(
     int width, int height)
 {
-    ecs_trace("sokol: initialize fog effect");
+    ecs_trace("sokol: initialize ambient occlusion effect");
 
     SokolFx fx = {0};
-    fx.name = "SSAO";
+    fx.name = "AmbientOcclusion";
 
     int ao_width = width, ao_height = height;
 
@@ -28401,6 +28400,7 @@ const char *shd_fog =
     "float d = (rgba_to_depth(texture(depth, uv)) / u_far);\n"
     "vec4 fog_color = vec4(0.3, 0.6, 0.9, 1.0);\n"
     "float intensity = 1.0 - exp2(-(d * d) * u_density * u_density * LOG2);\n"
+    "intensity *= 1.1;\n"
     "frag_color = mix(c, fog_color, intensity);\n"
     ;
 
@@ -28507,8 +28507,8 @@ typedef struct fx_uniforms_t {
     float t;
     float dt;
     float aspect;
-    float near1;
-    float far1;
+    float near;
+    float far;
     float target_size[2];
 } fx_uniforms_t;
 
@@ -28805,8 +28805,8 @@ void fx_draw(
         .t = state->uniforms.t,
         .dt = state->uniforms.dt,
         .aspect = state->uniforms.aspect,
-        .near1 = state->uniforms.near1,
-        .far1 = state->uniforms.far1,
+        .near = state->uniforms.near,
+        .far = state->uniforms.far,
     };
 
     for (int32_t s = 0; s < step_last; s ++) {
@@ -28921,8 +28921,8 @@ typedef struct depth_vs_uniforms_t {
 
 typedef struct depth_fs_uniforms_t {
     vec3 eye_pos;
-    float near1;
-    float far1;
+    float near;
+    float far;
     float depth_c;
     float inv_log_far;
 } depth_fs_uniforms_t;
@@ -29091,10 +29091,10 @@ void sokol_run_depth_pass(
     
     depth_fs_uniforms_t fs_u;
     glm_vec3_copy(state->uniforms.eye_pos, fs_u.eye_pos);
-    fs_u.near1 = state->uniforms.near1;
-    fs_u.far1 = state->uniforms.far1;
+    fs_u.near = state->uniforms.near;
+    fs_u.far = state->uniforms.far;
     fs_u.depth_c = SOKOL_DEPTH_C;
-    fs_u.inv_log_far = 1.0 / log(SOKOL_DEPTH_C * fs_u.far1 + 1.0);
+    fs_u.inv_log_far = 1.0 / log(SOKOL_DEPTH_C * fs_u.far + 1.0);
 
     /* Render to offscreen texture so screen-space effects can be applied */
     sg_begin_pass(pass->pass, &pass->pass_action);
@@ -29810,8 +29810,8 @@ void init_global_uniforms(
     sokol_render_state_t *state)
 {
     /* Default camera parameters */
-    state->uniforms.near1 = SOKOL_DEFAULT_DEPTH_NEAR;
-    state->uniforms.far1 = SOKOL_DEFAULT_DEPTH_FAR;
+    state->uniforms.near = SOKOL_DEFAULT_DEPTH_NEAR;
+    state->uniforms.far = SOKOL_DEFAULT_DEPTH_FAR;
     state->uniforms.fov = 30;
     state->uniforms.ortho = false;
 
@@ -29823,9 +29823,9 @@ void init_global_uniforms(
             state->uniforms.fov = cam.fov;
         }
 
-        if (cam.near1 || cam.far1) {
-            state->uniforms.near1 = cam.near1;
-            state->uniforms.far1 = cam.far1;
+        if (cam.near || cam.far) {
+            state->uniforms.near = cam.near;
+            state->uniforms.far = cam.far;
         }
 
         if (cam.up[0] || !cam.up[1] || !cam.up[2]) {
@@ -29845,8 +29845,8 @@ void init_global_uniforms(
         glm_perspective(
             state->uniforms.fov, 
             state->uniforms.aspect, 
-            state->uniforms.near1, 
-            state->uniforms.far1, 
+            state->uniforms.near, 
+            state->uniforms.far, 
             state->uniforms.mat_p);
     }
     glm_mat4_inv(state->uniforms.mat_p, state->uniforms.inv_mat_p);
