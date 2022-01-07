@@ -7,13 +7,14 @@ CONFIG -= qt
 
 DEFINES += __USE_MINGW_ANSI_STDIO=1
 
-#QMAKE_CFLAGS += -Wno-unused-function
-#QMAKE_CFLAGS += -Wno-missing-braces
-#QMAKE_CFLAGS += -Wno-unused-parameter
-#QMAKE_CFLAGS += -Wno-missing-field-initializers
+QMAKE_CFLAGS += -Wno-unused-function
+QMAKE_CFLAGS += -Wno-missing-braces
+QMAKE_CFLAGS += -Wno-unused-parameter
+QMAKE_CFLAGS += -Wno-missing-field-initializers
 
 INCLUDEPATH += include
 HEADERS += include/**
+HEADERS += deps/*.h
 
 SOURCES += src/main.c
 SOURCES += src/module.c
